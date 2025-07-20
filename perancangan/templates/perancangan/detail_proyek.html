@@ -1,0 +1,193 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Detail Proyek: {{ proyek.nama_proyek }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 2rem;
+            background-color: #f4f7fb;
+            color: #333;
+        }
+        a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+        .detail-card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .detail-card h1 {
+            margin-top: 0;
+            font-size: 1.6rem;
+            color: #2c3e50;
+        }
+        .detail-card p {
+            margin: 0.5em 0;
+        }
+        .section {
+            margin-top: 2.5rem;
+        }
+        .section h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        .item-list {
+            list-style: none;
+            padding: 0;
+        }
+        .item-list li {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: box-shadow 0.2s ease;
+        }
+        .item-list li:hover {
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+        .item-list strong {
+            color: #007BFF;
+        }
+        .item-list small {
+            color: #777;
+        }
+        .action-link {
+            display: inline-block;
+            margin-top: 1rem;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease;
+        }
+        .action-link:hover {
+            background-color: #0056b3;
+            color: white;
+            text-decoration: none;
+        }
+        .img-thumbnail {
+            max-width: 200px;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        /* Style untuk tombol konfirmasi */
+        .btn-confirm {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            transition: background-color 0.2s ease;
+        }
+        .btn-confirm:hover {
+            background-color: #218838;
+        }
+        /* Style untuk status badge */
+        .status-badge {
+            display: inline-block;
+            padding: 0.3em 0.6em;
+            font-size: 0.8em;
+            font-weight: 600;
+            border-radius: 1rem;
+            color: white;
+        }
+        .status-aktif { background-color: #28a745; }
+        .status-selesai { background-color: #6c757d; }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'perancangan:dashboard_arsitek' %}" class="back-link">&larr; Kembali ke Dashboard</a>
+
+    <div class="detail-card">
+        <h1>{{ proyek.nama_proyek }}</h1>
+        <p><strong>Lokasi:</strong> {{ proyek.lokasi }}</p>
+        <p><strong>Tanggal Mulai:</strong> {{ proyek.tanggal_mulai|date:"d F Y" }}</p>
+        
+        <p><strong>Status:</strong> 
+        {% if proyek.tanggal_selesai %}
+            <span class="status-badge status-selesai">Selesai pada {{ proyek.tanggal_selesai|date:"d F Y" }}</span>
+        {% else %}
+            <span class="status-badge status-aktif">Aktif</span>
+        {% endif %}
+        </p>
+        <p><strong>Arsitek:</strong> {{ proyek.arsitek.username }}</p>
+
+        {% if not proyek.tanggal_selesai %}
+        <div style="margin-top: 1.5rem;">
+            <form action="{% url 'perancangan:konfirmasi_proyek_selesai' proyek.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-confirm">Konfirmasi Proyek Selesai</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h2>Daftar Tugas</h2>
+        <ul class="item-list">
+            {% for tugas in tugas_list %}
+                <li>
+                    <a href="{% url 'perancangan:detail_tugas_arsitek' tugas.id %}" style="text-decoration: none; color: inherit;">
+                        <strong>{{ tugas.nama_tugas }}</strong><br>
+                        Penanggung Jawab: {{ tugas.mandor_penanggung_jawab.username|default:"Belum ditugaskan" }}<br>
+                        <small>Status: {{ tugas.get_status_display }}</small>
+                    </a>
+                </li>
+            {% empty %}
+                <li><em>Belum ada tugas yang ditambahkan untuk proyek ini.</em></li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'perancangan:tambah_tugas' proyek.id %}" class="action-link">+ Tambah Tugas Baru</a>
+    </div>
+
+    <div class="section">
+        <h2>Dokumen Proyek</h2>
+        <ul class="item-list">
+            {% for dokumen in dokumen_list %}
+                <li>
+                    <a href="{{ dokumen.file.url }}" target="_blank"><strong>{{ dokumen.nama_dokumen }}</strong></a><br>
+                    <small>Diunggah pada: {{ dokumen.tanggal_unggah|date:"d M Y, P" }}</small>
+
+                    {% with extension=dokumen.file.name|slice:"-4"|lower %}
+                    {% if extension in ".png.jpg.jpeg.gif" %}
+                        <div>
+                           <img src="{{ dokumen.file.url }}" alt="{{ dokumen.nama_dokumen }}" class="img-thumbnail">
+                        </div>
+                    {% endif %}
+                    {% endwith %}
+                </li>
+            {% empty %}
+                <li><em>Belum ada dokumen yang diunggah untuk proyek ini.</em></li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'perancangan:unggah_dokumen' proyek.id %}" class="action-link">+ Unggah Dokumen</a>
+    </div>
+
+</body>
+</html>

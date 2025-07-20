@@ -1,0 +1,197 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Arsitek</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #0a84ff;
+            --primary-dark: #0060df;
+            --success: #34c759;
+            --secondary: #8e8e93;
+            --background: #ecf0f3;
+            --text: #2e2e2e;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: var(--background);
+            color: var(--text);
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+        }
+
+        .logout-form button {
+            background: none; border: none; color: var(--primary);
+            cursor: pointer; font-size: 1rem; text-decoration: underline;
+        }
+        
+        /* KODE BARU UNTUK KARTU STATISTIK */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+        .stat-number.success { color: var(--success); }
+        .stat-number.secondary { color: var(--secondary); }
+        /* AKHIR KODE BARU */
+
+
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+        }
+
+        .proyek-list {
+            list-style: none; padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .proyek-item {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .proyek-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+
+        .proyek-item a {
+            text-decoration: none; font-weight: 600;
+            color: var(--primary-dark); font-size: 1.05rem;
+        }
+
+        .proyek-meta {
+            font-size: 0.85rem; color: #555;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            display: inline-block; margin-top: 2rem;
+            background: var(--primary); color: white;
+            padding: 12px 20px; border-radius: 10px;
+            font-weight: 600; text-decoration: none;
+            transition: background 0.3s ease, transform 0.2s;
+            box-shadow: 0 4px 12px rgba(10, 132, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .empty { font-style: italic; color: #888; }
+
+        @media (max-width: 600px) {
+            .header { flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+            .btn-primary { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1> Halo, {{ user.username }}</h1>
+        <form action="{% url 'perancangan:logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <p>Selamat datang, berikut ringkasan dan daftar proyek yang Anda kelola.</p>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-title">Total Proyek</div>
+            <div class="stat-number">{{ total_proyek }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Proyek Aktif</div>
+            <div class="stat-number success">{{ proyek_aktif }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Proyek Selesai</div>
+            <div class="stat-number secondary">{{ proyek_selesai }}</div>
+        </div>
+    </div>
+    <h2 class="section-title">📋 Proyek Anda</h2>
+
+    <ul class="proyek-list">
+        {% for proyek in proyek_saya %}
+            <li class="proyek-item">
+                <a href="{% url 'perancangan:detail_proyek' proyek.id %}">
+                    {{ proyek.nama_proyek }}
+                </a>
+                <div class="proyek-meta">
+                    📍 {{ proyek.lokasi }}<br>
+                    🗓️ Mulai: {{ proyek.tanggal_mulai|date:"d M Y" }}
+                </div>
+            </li>
+        {% empty %}
+            <li class="empty">⚠️ Anda belum memiliki proyek. Silakan buat proyek baru.</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'perancangan:tambah_proyek' %}" class="btn-primary">+ Buat Proyek Baru</a>
+
+</body>
+</html>

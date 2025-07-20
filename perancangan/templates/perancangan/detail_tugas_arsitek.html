@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Detail Tugas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f7f9fc;
+            margin: 0;
+            padding: 2rem;
+            color: #333;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 0.95rem;
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 1.5rem;
+            background: none;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            background-color: #e9ecef;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-header h2 {
+            font-size: 1.25rem;
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #007bff;
+            color: white;
+            font-size: 0.85rem;
+            border-radius: 5px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .report-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .report-image {
+            width: 35%;
+            object-fit: cover;
+        }
+
+        .report-content {
+            padding: 1rem;
+            flex: 1;
+        }
+
+        .report-text {
+            margin-bottom: 0.5rem;
+        }
+
+        .report-time {
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        .alert {
+            background-color: #e2e3e5;
+            padding: 1rem;
+            border-radius: 6px;
+            color: #555;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'perancangan:detail_proyek' tugas.proyek.id %}" class="btn-back">&larr; Kembali ke Detail Proyek</a>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Detail Tugas: {{ tugas.nama_tugas }}</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Proyek:</strong> {{ tugas.proyek.nama_proyek }}</p>
+            <p><strong>Penanggung Jawab:</strong> {{ tugas.mandor_penanggung_jawab.username }}</p>
+            <p><strong>Status:</strong> <span class="badge">{{ tugas.get_status_display }}</span></p>
+            <hr>
+            <p><strong>Deskripsi:</strong></p>
+            <p>{{ tugas.deskripsi|linebreaks }}</p>
+        </div>
+    </div>
+
+    <h3 class="section-title">Riwayat Laporan dari Mandor</h3>
+    {% for laporan in laporan_list %}
+        <div class="report-card">
+            {% if laporan.foto_kemajuan %}
+                <img src="{{ laporan.foto_kemajuan.url }}" alt="Foto Laporan" class="report-image">
+            {% endif %}
+            <div class="report-content">
+                <p class="report-text">{{ laporan.catatan }}</p>
+                <p class="report-time">Dikirim pada: {{ laporan.tanggal_laporan|date:"d M Y, P" }}</p>
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert">Belum ada laporan yang dikirim untuk tugas ini.</div>
+    {% endfor %}
+
+</body>
+</html>
