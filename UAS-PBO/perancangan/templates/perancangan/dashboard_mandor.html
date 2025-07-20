@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Mandor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2f80ed;
+            --bg: #f0f4f8;
+            --card-bg: #fff;
+            --text-dark: #333;
+            --text-muted: #777;
+            --shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text-dark);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .logout-form button {
+            background: none;
+            border: none;
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .welcome {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .tugas-section {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .tugas-list {
+            list-style: none;
+        }
+
+        .tugas-list li {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: #fdfdfd;
+            border-left: 6px solid var(--primary);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .tugas-list li:hover {
+            transform: scale(1.01);
+            background-color: #f7faff;
+        }
+
+        .tugas-list a {
+            text-decoration: none;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+
+        .status-belum {
+            background: #ffe6e6;
+            color: #e74c3c;
+        }
+
+        .status-dikerjakan {
+            background: #fff3cd;
+            color: #f39c12;
+        }
+
+        .status-selesai {
+            background: #e0fce0;
+            color: #27ae60;
+        }
+
+        .message {
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 600px) {
+            .header, .tugas-section {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 1.4rem;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <h1>Halo, {{ user.username }}</h1>
+        <form action="{% url 'perancangan:logout' %}" method="post" class="logout-form">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+
+    <p class="welcome">Berikut adalah daftar tugas yang telah diberikan kepada Anda sebagai mandor.</p>
+
+    <div class="tugas-section">
+        <h2>Daftar Tugas Anda</h2>
+        <ul class="tugas-list">
+            {% for tugas in tugas_saya %}
+                <li>
+                    <a href="{% url 'perancangan:detail_tugas' tugas.id %}">
+                        {{ tugas.nama_tugas }} <br>
+                        <small>(Proyek: {{ tugas.proyek.nama_proyek }})</small>
+                    </a><br>
+                    <span class="status status-{{ tugas.status }}">{{ tugas.get_status_display }}</span>
+                </li>
+            {% empty %}
+                <li class="message">Belum ada tugas yang ditugaskan kepada Anda.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+</body>
+</html>

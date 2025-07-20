@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+</head>
+<body>
+
+    <h1>Selamat Datang, {{ user.username }}!</h1>
+
+    <h2>Proyek Saya (Sebagai Arsitek)</h2>
+    <ul>
+        {% for proyek in proyek_saya %}
+            <li><a href="#">{{ proyek.nama_proyek }}</a> - Lokasi: {{ proyek.lokasi }}</li>
+        {% empty %}
+            <li>Anda belum membuat proyek.</li>
+        {% endfor %}
+    </ul>
+
+    <hr>
+
+    <h2>Tugas Saya (Sebagai Mandor)</h2>
+    <ul>
+        {% for tugas in tugas_saya %}
+            <li>{{ tugas.nama_tugas }} (Status: {{ tugas.get_status_display }})</li>
+        {% empty %}
+            <li>Tidak ada tugas yang ditugaskan kepada Anda.</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>
